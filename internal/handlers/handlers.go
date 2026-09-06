@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Yandex-Practicum/go1fl-sprint6-final/internal/service"
@@ -24,6 +25,8 @@ func (h *Handlers) MainPage(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "index.html")
 }
 
+// UploadFile принимает файл из формы, конвертирует его содержимое
+// и отдаёт результат, попутно сохраняя его в локальный файл
 func (h *Handlers) UploadFile(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
 		h.log.Println("ошибка парсинга формы:", err)
@@ -54,7 +57,12 @@ func (h *Handlers) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ext := filepath.Ext(header.Filename)
-	fileName := fmt.Sprintf("%s%s", time.Now().UTC().String(), ext)
+	timestamp := time.Now().UTC().String()
+
+	// заменяем ':' и пробелы в timestamp на '-'/'_',
+	// так как исходный формат time.Now().UTC().String() несовместим с именами файлов в Windows.
+	safeTimestamp := strings.NewReplacer(":", "-", " ", "_").Replace(timestamp)
+	fileName := fmt.Sprintf("%s%s", safeTimestamp, ext)
 
 	outFile, err := os.Create(fileName)
 	if err != nil {
