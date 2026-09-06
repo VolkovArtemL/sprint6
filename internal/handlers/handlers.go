@@ -60,7 +60,7 @@ func (h *Handlers) UploadFile(w http.ResponseWriter, r *http.Request) {
 	timestamp := time.Now().UTC().String()
 
 	// заменяем ':' и пробелы в timestamp на '-'/'_',
-	// так как исходный формат time.Now().UTC().String() несовместим с именами файлов в Windows.
+	// так как исходный формат time.Now().UTC().String() несовместим с именами файлов в Windows
 	safeTimestamp := strings.NewReplacer(":", "-", " ", "_").Replace(timestamp)
 	fileName := fmt.Sprintf("%s%s", safeTimestamp, ext)
 
